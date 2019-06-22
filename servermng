@@ -1,0 +1,114 @@
+#!/usr/bin/python
+#!coding=utf-8
+
+import json
+import sys
+import getopt
+from abc import ABCMeta, abstractmethod
+
+class server_action:
+    __metaclass__ = ABCMeta
+
+    def __init__(self):
+        pass
+
+    @abstractmethod
+    def parse_parameters(self):
+        pass
+
+    @abstractmethod
+    def run(self):
+        pass
+
+class action_list(server_action):
+    def __init__(self):
+        pass
+
+    def parse_parameters(self):
+        pass
+
+    def run(self):
+        with open('/etc/smng/config.json', 'r') as f:
+            serverlists = json.loads(f.read())
+
+# 参数辅助类
+class usage_helper:
+    def __init__(self,application,action,parameter_descs):
+        self.__parameters__ = parameter_descs
+        self.__application__ = application
+        self.__action__ = action
+        pass
+
+    # 根据参数表输出帮助信息
+    def output(self):
+        # 输出帮助信息的第一行，一般都是类似Usage: app list [abcde]这样的信息
+        opts_string=''
+        for opt in self.__parameters__:
+            opts_string+=opt['name']
+        print("Usage:%s %s [%s]" % (self.__application__, self.__action__, opts_string))
+
+        # 循环输出参数信息
+        for opt in self.__parameters__:
+            # 为了保证输出的对齐，先格式化前半部分，比如"\t-u user"这一段，然后根据前半部分的长度，计算需要的空格数
+            if opt['needarg'] == True:
+                begin_with="\t-%s %s" % (opt['name'], opt['argname'])
+            else:
+                begin_with="\t-%s" % (opt['name'])
+            print("%s%s%s" % (begin_with, " " * (30 - len(begin_with)), opt['desc']))
+
+    # 根据参数表组织参数解析函数getopt所需要的第二个参数
+    def get_opt_string(self):
+        optstring=''
+        for opt in self.__parameters__:
+            if opt['needarg'] == True:
+                optstring+='%s:' % (opt['name'])
+            else:
+                optstring+=opt['name']
+
+
+class action_add(server_action):
+    __parameters__ = [
+            {"name":"u","desc":"登录服务器的用户名","needarg":True,"argname":"user"},
+            {"name":"p","desc":"服务器的端口","needarg":True,"argname":"port"},
+            {"name":"i","desc":"服务器的地址","needarg":True,"argname":"ip"},
+            {"name":"a","desc":"登录服务器的密码","needarg":True,"argname":"password"}
+            ]
+    def __init__(self):
+        self.__usage_helper__ = usage_helper(sys.argv[0], "add", self.__parameters__)
+        pass
+
+    def __usage__(self):
+        self.__usage_helper__.output()
+
+    def parse_parameters(self):
+        try:
+            opts, argv = getopt.getopt(sys.argv[2:],'u:p:i:a:')
+        except:
+            self.__usage__()
+            exit()
+        for opt,arg in opts:
+            if opt == '-u':
+                self.__user__ = arg
+            elif opt == '-p':
+                self.__port__ = arg
+            elif opt == '-i':
+                self.__ip__ = arg
+            elif opt == '-a':
+                self.__password__ = arg
+
+    def run(self):
+        pass
+
+
+def createAction():
+    action=sys.argv[1]
+    class_name = "action_%s"%(action)
+    obj = globals()[class_name]()
+    return obj
+
+
+
+if __name__ == "__main__":
+    action = createAction()
+    action.parse_parameters()
+    action.run()
