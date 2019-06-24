@@ -1,3 +1,4 @@
+#coding=utf-8
 from core.interface.action import server_action
 from core.helper.creator import create_action
 

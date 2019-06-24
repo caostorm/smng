@@ -1,3 +1,4 @@
+#coding=utf-8
 import sys
 
 # 参数辅助类

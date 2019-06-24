@@ -1,3 +1,4 @@
+#coding=utf-8
 import sys
 import getopt
 from core.interface.action import server_action

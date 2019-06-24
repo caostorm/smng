@@ -1,3 +1,4 @@
+#coding=utf-8
 import sys
 from core.action.add import action_add
 from core.action.list import action_list

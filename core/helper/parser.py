@@ -1,3 +1,4 @@
+#coding=utf-8
 import json
 from core.helper.crypt import pwd_crypt
 from copy import copy
@@ -17,8 +18,9 @@ class config_parser:
 
     # 从文件中读取JSON并解析出来存在成员变量内
     def __parse__(self):
-        with open(self.__config_file_path__, "r+") as f:
+        with open(self.__config_file_path__, "a+") as f:
             try:
+                f.seek(0)
                 self.__config__ = json.loads(f.read())
             except Exception as e:
                 self.__config__ = []
@@ -32,6 +34,10 @@ class config_parser:
     def __iter__(self):
         self.__current__ = 0
         return self
+
+    # python2 迭代器兼容
+    def next(self):
+        return self.__next__()
 
     # 迭代器方法
     def __next__(self):

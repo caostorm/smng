@@ -1,3 +1,4 @@
+#coding=utf-8
 import json
 from core.interface.action import server_action
 from core.helper.parser import config_parser
