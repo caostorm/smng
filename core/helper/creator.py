@@ -1,11 +1,11 @@
 #coding=utf-8
 import sys
-from core.action.add import action_add
-from core.action.list import action_list
-from core.action.login import action_login
+import importlib
 
 def create_action():
-    action=sys.argv[1]
+    action = sys.argv[1]
+    m = importlib.import_module('core.action.%s'%(action))
     class_name = "action_%s"%(action)
-    obj = globals()[class_name]()
+    class_create_function = getattr(m, class_name)
+    obj = class_create_function()
     return obj
