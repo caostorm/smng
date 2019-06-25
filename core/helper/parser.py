@@ -1,7 +1,9 @@
 #coding=utf-8
 import json
 from core.helper.crypt import pwd_crypt
+from core.helper.globalvar import global_const
 from copy import copy
+import os
 
 class config_parser:
     # 自定义异常，找不到对应的服务器记录
@@ -12,8 +14,11 @@ class config_parser:
         def __str__(self):
             return 'Can not find the record'
 
-    def __init__(self,config_path="/etc/smng/config.json"):
-        self.__config_file_path__ = config_path
+    def __init__(self,config_path=None):
+        if config_path == None:
+            self.__config_file_path__ = "%s/etc/config.json" % (global_const().get_value("BASEDIR"))
+        else:
+            self.__config_file_path__ = config_path
         self.__parse__()
 
     # 从文件中读取JSON并解析出来存在成员变量内
