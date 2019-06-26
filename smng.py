@@ -9,6 +9,9 @@ class smng:
         global_const().set_value('BASEDIR', os.path.dirname(__file__))
 
     def run(self):
-        action = create_action()
+        try:
+            action = create_action()
+        except:
+            action = create_action('help')
         action.parse_parameters()
         action.run()

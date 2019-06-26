@@ -18,6 +18,9 @@ class action_login(server_action):
     def __usage__(self):
         self.__usage_helper__.output()
 
+    def description(self):
+        return "使用记录列表内的服务器信息登录指定的服务器"
+
     def parse_parameters(self):
         try:
             opts, argv = getopt.getopt(sys.argv[2:], self.__usage_helper__.get_opt_string())

@@ -19,6 +19,9 @@ class action_add(server_action):
     def __usage__(self):
         self.__usage_helper__.output()
 
+    def description(self):
+        return "添加一条服务器信息到记录列表"
+
     def parse_parameters(self):
         try:
             opts, argv = getopt.getopt(sys.argv[2:], self.__usage_helper__.get_opt_string())

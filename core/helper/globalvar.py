@@ -21,6 +21,7 @@ class global_var(object):
         except:
             return None 
 
+# 用单例实现的伪常量，所有的值只能设置一次
 class global_const(object):
     def __init__(self):
         pass
