@@ -10,7 +10,7 @@ class action_add(server_action):
             {"name":"u","desc":"登录服务器的用户名","needarg":True,"argname":"user"},
             {"name":"p","desc":"服务器的端口","needarg":True,"argname":"port"},
             {"name":"i","desc":"服务器的地址","needarg":True,"argname":"ip"},
-            {"name":"a","desc":"登录服务器的密码","needarg":True,"argname":"password"},
+            {"name":"P","desc":"登录服务器的密码","needarg":True,"argname":"password"},
             {"name":"h","desc":"显示这条帮助信息","needarg":False}
             ]
     def __init__(self):
@@ -35,7 +35,7 @@ class action_add(server_action):
                 self.__port__ = arg
             elif opt == '-i':
                 self.__ip__ = arg
-            elif opt == '-a':
+            elif opt == '-P':
                 self.__password__ = arg
             elif opt == '-h':
                 self.__usage__()
