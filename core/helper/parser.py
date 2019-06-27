@@ -16,28 +16,28 @@ class config_parser:
 
     def __init__(self,config_path=None):
         if config_path == None:
-            self.__config_file_path__ = "%s/etc/config.json" % (global_const().get_value("BASEDIR"))
+            self._config_file_path = "%s/etc/config.json" % (global_const().get_value("BASEDIR"))
         else:
-            self.__config_file_path__ = config_path
-        self.__parse__()
+            self._config_file_path = config_path
+        self._parse()
 
     # 从文件中读取JSON并解析出来存在成员变量内
-    def __parse__(self):
-        with open(self.__config_file_path__, "a+") as f:
+    def _parse(self):
+        with open(self._config_file_path, "a+") as f:
             try:
                 f.seek(0)
-                self.__config__ = json.loads(f.read())
+                self._config = json.loads(f.read())
             except Exception as e:
-                self.__config__ = []
+                self._config = []
 
     # 将数据同步到文件
-    def __sync__(self):
-        with open(self.__config_file_path__, "w+") as f:
-            f.write(json.dumps(self.__config__))
+    def _sync(self):
+        with open(self._config_file_path, "w+") as f:
+            f.write(json.dumps(self._config))
 
     # 迭代器方法
     def __iter__(self):
-        self.__current__ = 0
+        self._current = 0
         return self
 
     # python2 迭代器兼容
@@ -46,11 +46,11 @@ class config_parser:
 
     # 迭代器方法
     def __next__(self):
-        if self.__config__ == None:
+        if self._config == None:
             raise StopIteration
-        elif self.__current__ < len(self.__config__):
-            cur_record = copy(self.__config__[self.__current__])
-            self.__current__+=1
+        elif self._current < len(self._config):
+            cur_record = copy(self._config[self._current])
+            self._current+=1
             crypto = pwd_crypt()
             password = crypto.decrypt(cur_record['password'])
             cur_record['password'] = password
@@ -61,28 +61,28 @@ class config_parser:
     # 添加一条服务器信息
     def add_record(self, ip, port, user, password):
         # 先查找是否有对应的ip,如果有的话则不做任何处理
-        for record in self.__config__:
+        for record in self._config:
             if record['ip'] == ip:
                 return
         crypto = pwd_crypt()
         obj = {"ip":ip, "port": port, "user":user, "password":crypto.encrypt(password)}
-        self.__config__.append(obj)
-        self.__sync__()
+        self._config.append(obj)
+        self._sync()
 
     # 根据ip删除一条服务器信息
     def remove_record(self, ip):
         index = None
-        for record in self.__config__:
+        for record in self._config:
             if record['ip'] == ip:
-                index = self.__config__.index(record)
+                index = self._config.index(record)
         if None != index:
-            del self.__config__[index]
-        self.__sync__()
+            del self._config[index]
+        self._sync()
 
     # 根据ip获取一条服务器信息
     def get_record(self, ip):
         ret_record = None
-        for record in self.__config__:
+        for record in self._config:
             if record['ip'] == ip:
                 crypto = pwd_crypt()
                 password = crypto.decrypt(record['password'])
@@ -96,7 +96,7 @@ class config_parser:
             crypto = pwd_crypt()
             password = crypto.encrypt(password)
         a_record = 0
-        for record in self.__config__:
+        for record in self._config:
             if record['ip'] == ip:
                 # 找到了对应的记录
                 a_record= 1
@@ -104,7 +104,7 @@ class config_parser:
                     # 如果记录中的这个参数在上下文中并且数据不是None, 则把与参数同名的上下文变量的值赋值给参数
                     if key in locals() and locals()[key] != None:
                         record[key] = locals()[key]
-                self.__sync__()
+                self._sync()
                 return
         
         if a_record == 0:

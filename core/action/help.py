@@ -8,27 +8,27 @@ import importlib
 import os
 
 class action_help(server_action):
-    __parameters__ = [
+    _parameters = [
         {"name":"h", "needarg":False, "desc":"显示这条帮助信息"}
     ]
     def __init__(self):
-        self.__usage_helper__ = usage_helper(sys.argv[0], "help", self.__parameters__)
+        self._usage_helper = usage_helper(sys.argv[0], "help", self._parameters)
 
-    def __usage__(self):
-        self.__usage_helper__.output()
+    def _usage(self):
+        self._usage_helper.output()
 
     def description(self):
         return "显示命令的帮助信息"
 
     def parse_parameters(self):
         try:
-            opts, argv = getopt.getopt(sys.argv[2:], self.__usage_helper__.get_opt_string())
+            opts, argv = getopt.getopt(sys.argv[2:], self._usage_helper.get_opt_string())
         except Exception as e:
-            self.__usage__()
+            self._usage()
             exit()
         for opt,arg in opts:
             if opt == '-h':
-                self.__usage__()
+                self._usage()
                 exit()
 
     def run(self):

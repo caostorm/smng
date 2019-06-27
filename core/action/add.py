@@ -6,7 +6,7 @@ from core.helper.usage import usage_helper
 from core.helper.parser import config_parser
 
 class action_add(server_action):
-    __parameters__ = [
+    _parameters = [
             {"name":"u","desc":"登录服务器的用户名","needarg":True,"argname":"user"},
             {"name":"p","desc":"服务器的端口","needarg":True,"argname":"port"},
             {"name":"i","desc":"服务器的地址","needarg":True,"argname":"ip"},
@@ -14,33 +14,33 @@ class action_add(server_action):
             {"name":"h","desc":"显示这条帮助信息","needarg":False}
             ]
     def __init__(self):
-        self.__usage_helper__ = usage_helper(sys.argv[0], "add", self.__parameters__)
+        self._usage_helper = usage_helper(sys.argv[0], "add", self._parameters)
 
-    def __usage__(self):
-        self.__usage_helper__.output()
+    def _usage(self):
+        self._usage_helper.output()
 
     def description(self):
         return "添加一条服务器信息到记录列表"
 
     def parse_parameters(self):
         try:
-            opts, argv = getopt.getopt(sys.argv[2:], self.__usage_helper__.get_opt_string())
+            opts, argv = getopt.getopt(sys.argv[2:], self._usage_helper.get_opt_string())
         except:
-            self.__usage__()
+            self._usage()
             exit()
         for opt,arg in opts:
             if opt == '-u':
-                self.__user__ = arg
+                self._user = arg
             elif opt == '-p':
-                self.__port__ = arg
+                self._port = arg
             elif opt == '-i':
-                self.__ip__ = arg
+                self._ip = arg
             elif opt == '-P':
-                self.__password__ = arg
+                self._password = arg
             elif opt == '-h':
-                self.__usage__()
+                self._usage()
                 exit()
 
     def run(self):
         config = config_parser()
-        config.add_record(self.__ip__, self.__port__, self.__user__, self.__password__)
+        config.add_record(self._ip, self._port, self._user, self._password)

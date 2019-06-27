@@ -7,31 +7,31 @@ from core.helper.globalvar import global_const
 
 # 这个指令用来创建指令模板，协助进行指令开发
 class action_create_action(server_action):
-    __parameters__ = [
+    _parameters = [
         {"name":"n", "needarg":True, "desc":"创建的模块的名称", "argname":"name"},
         {"name":"h", "needarg":False, "desc":"显示这条帮助信息"}
     ]
     def __init__(self):
-        self.__usage_helper__ = usage_helper(sys.argv[0], "create_action", self.__parameters__)
+        self._usage_helper = usage_helper(sys.argv[0], "create_action", self._parameters)
 
-    def __usage__(self):
-        self.__usage_helper__.output()
+    def _usage(self):
+        self._usage_helper.output()
 
     def description(self):
         return "为软件增加一个action，会在core/action内生成一个模版代码，可以添加自定义的功能到模版代码内"
 
     def parse_parameters(self):
         try:
-            opts, argv = getopt.getopt(sys.argv[2:], self.__usage_helper__.get_opt_string())
+            opts, argv = getopt.getopt(sys.argv[2:], self._usage_helper.get_opt_string())
         except Exception as e:
-            self.__usage__()
+            self._usage()
             exit()
         for opt,arg in opts:
             if opt == '-h':
-                self.__usage__()
+                self._usage()
                 exit()
             elif opt == '-n':
-                self._name_ = arg
+                self._name = arg
 
     def run(self):
         # 模板代码
@@ -96,6 +96,6 @@ class action_%s(server_action):
     # action实际执行的动作，请将action的行为添加到这个方法内
     def run(self):
         pass
-        '''%(self._name_, self._name_)
-        with open("%s/core/action/%s.py"%(global_const().get_value('BASEDIR'), self._name_), "w+") as f:
+        '''%(self._name, self._name)
+        with open("%s/core/action/%s.py"%(global_const().get_value('BASEDIR'), self._name), "w+") as f:
             f.write(tpl_code)
