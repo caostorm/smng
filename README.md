@@ -7,3 +7,4 @@
 代码依赖的一些模块
 pycrypto
 binascii
+prettytable

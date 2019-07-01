@@ -14,6 +14,12 @@ class config_parser:
         def __str__(self):
             return 'Can not find the record'
 
+    class ErrorIncorrectType(BaseException):
+        def __init__(self):
+            pass
+        def __str__(self):
+            return 'Incorrect type of value'
+
     def __init__(self,config_path=None):
         if config_path == None:
             self._config_file_path = "%s/etc/config.json" % (global_const().get_value("BASEDIR"))
@@ -58,16 +64,66 @@ class config_parser:
         else:
             raise StopIteration
 
-    # 添加一条服务器信息
-    def add_record(self, ip, port, user, password):
-        # 先查找是否有对应的ip,如果有的话则不做任何处理
+    def _get_writable_record(self, ip):
+        find_record = None
         for record in self._config:
             if record['ip'] == ip:
-                return
+                find_record = record
+        return find_record
+
+    # 添加一条服务器信息
+    # tags传入的形式为元数据数组，如[('area','NA3'),('role',p2p),('group','kp2p)]
+    def add_record(self, ip, port, user, password, name=None):
+        # 先查找是否有对应的ip,如果有的话则不做任何处理
+        if self._get_writable_record(ip) != None:
+            return
         crypto = pwd_crypt()
         obj = {"ip":ip, "port": port, "user":user, "password":crypto.encrypt(password)}
+        if name != None:
+            obj['name'] = name
         self._config.append(obj)
         self._sync()
+
+    # 为一条记录添加tag
+    # tag传入的方式为字典
+    def add_tag(self, ip, tags):
+        # 不是字典退出
+        if type(tags) is not dict:
+            raise self.ErrorIncorrectType
+        for tag in tags:
+            if type(tags[tag]) is not str:
+                raise self.ErrorIncorrectType
+        record = self._get_writable_record(ip)
+        if None == record:
+            return
+        # 找到了对应的记录, 原本记录中不存在tags属性，则初始化tags
+        if 'tags' not in record:
+            record['tags'] = {}
+        # 写入tag，如果是有相同的tag名称则会直接替代
+        for tag in tags:
+            record['tags'][tag] = tags[tag]
+        self._sync()
+
+    # 删除一条记录上的tag
+    def del_tag(self, ip, tagname):
+        record = self._get_writable_record(ip)
+        # 没找到记录，直接返回
+        if record == None:
+            return
+        try:
+            del record['tags'][tagname]
+            self._sync()
+        except:
+            pass
+
+    # 更新一条记录上的某一条tag,没有就直接增加
+    def update_tag(self, ip, tagname, tagvalue):
+        record = self._get_writable_record(ip)
+        if 'tags' not in record:
+            record['tags'] = {}
+        record['tags'][tagname] = tagvalue
+        self._sync()
+
 
     # 根据ip删除一条服务器信息
     def remove_record(self, ip):
@@ -106,7 +162,6 @@ class config_parser:
                         record[key] = locals()[key]
                 self._sync()
                 return
-        
         if a_record == 0:
             raise self.ErrorNotFind
         

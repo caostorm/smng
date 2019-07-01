@@ -2,6 +2,7 @@
 import json
 from core.interface.action import server_action
 from core.helper.parser import config_parser
+from prettytable import PrettyTable
 
 class action_list(server_action):
     def __init__(self):
@@ -14,6 +15,8 @@ class action_list(server_action):
         pass
 
     def run(self):
+        disp = PrettyTable(["IP"])
         config = config_parser()
         for i in config:
-            print(i['ip'])
+            disp.add_row([i['ip']])
+        print(disp)
