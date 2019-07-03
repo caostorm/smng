@@ -3,20 +3,23 @@ import sys
 import getopt
 from core.interface.action import server_action
 from core.helper.usage import usage_helper
-from prettytable import PrettyTable
 from core.helper.parser import config_parser
-import re
 
-class action_list(server_action):
+class action_update(server_action):
     # 参数列表示例，可以在这边增加参数描述，最终代码将根据argname生成对对应的参数
     _parameters = [
         {"name":"h", "needarg":False, "desc":"显示这条帮助信息", "argname":"help"},
-        {"name":"n", "needarg":True, "desc":"根据服务器名称进行模糊搜索", "argname":"name"}
+        {"name":"p","desc":"服务器的端口","needarg":True,"argname":"port"},
+        {"name":"i","desc":"服务器的地址","needarg":True,"argname":"ip"},
+        {"name":"u", "desc": "登录服务器的用户名", "needarg": True, "argname":"user"},
+        {"name":"P","desc":"登录服务器的密码","needarg":True,"argname":"password"},
+        {"name":"n", "desc": "服务器的别名", "needarg": True, "argname":"name"},
+
     ]
 
     def __init__(self):
         # 创建帮助信息
-        self._usage_helper = usage_helper(sys.argv[0], "list", self._parameters)
+        self._usage_helper = usage_helper(sys.argv[0], "update", self._parameters)
 
     def _usage(self):
         # 输出action的帮助信息
@@ -40,7 +43,7 @@ class action_list(server_action):
 
     # action的简要描述，当执行smng help时，这个会输出到屏幕
     def description(self):
-        return "列出服务器信息"
+        return "更新服务器信息"
 
     # 通用的参数解析方法，如果需要增加参数处理过程请在这个方法内添加
     def parse_parameters(self):
@@ -62,35 +65,10 @@ class action_list(server_action):
         # ToDo: 自定义的解析方法
         pass
 
-    def _search_by_name(self):
-        config = config_parser()
-        ret_array = []
-        # 不需要使用名称进行过滤时，返回全集
-        if self._name == None:
-            for i in config:
-                ret_array.append(i['ip'])
-            return set(ret_array)
-        # 否则进行模糊搜索
-        prog = re.compile('^.*%s.*$'%(self._name))
-        for i in config:
-            if 'name' not in i:
-                continue
-            if prog.match(i['name']) != None:
-                ret_array.append(i['ip'])
-        return set(ret_array)
-
     # action实际执行的动作，请将action的行为添加到这个方法内
     def run(self):
-        name_set = self._search_by_name()
         config = config_parser()
-        prog = re.compile('^%s$'%(self._name))
-        disp = PrettyTable(["IP", "服务器名称"])
-        for i in config:
-            # 检测记录是否在搜索结果内
-            if i['ip'] in name_set:
-                if 'name' in i:
-                    disp.add_row([i['ip'], i['name']])
-                else:
-                    disp.add_row([i['ip'], ''])
-        print(disp)
-        
+        if config.get_record(self._ip) == None:
+            print("找不到对应的服务器记录")
+            return
+        config.modify_record(self._ip, self._port, self._user, self._password, self._name)

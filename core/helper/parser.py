@@ -86,12 +86,9 @@ class config_parser:
 
     # 为一条记录添加tag
     # tag传入的方式为字典
-    def add_tag(self, ip, tags):
-        # 不是字典退出
-        if type(tags) is not dict:
-            raise self.ErrorIncorrectType
-        for tag in tags:
-            if type(tags[tag]) is not str:
+    def add_tag(self, ip, **kwargs):
+        for tag in kwargs:
+            if type(kwargs[tag]) is not str:
                 raise self.ErrorIncorrectType
         record = self._get_writable_record(ip)
         if None == record:
@@ -100,28 +97,30 @@ class config_parser:
         if 'tags' not in record:
             record['tags'] = {}
         # 写入tag，如果是有相同的tag名称则会直接替代
-        for tag in tags:
-            record['tags'][tag] = tags[tag]
+        for tag in kwargs:
+            record['tags'][tag] = kwargs[tag]
         self._sync()
 
     # 删除一条记录上的tag
-    def del_tag(self, ip, tagname):
+    def del_tag(self, ip, *args):
         record = self._get_writable_record(ip)
         # 没找到记录，直接返回
         if record == None:
             return
         try:
-            del record['tags'][tagname]
+            for tagname in args:
+                del record['tags'][tagname]
             self._sync()
         except:
             pass
 
     # 更新一条记录上的某一条tag,没有就直接增加
-    def update_tag(self, ip, tagname, tagvalue):
+    def update_tag(self, ip, **kwargs):
         record = self._get_writable_record(ip)
         if 'tags' not in record:
             record['tags'] = {}
-        record['tags'][tagname] = tagvalue
+        for tagname in kwargs:
+            record['tags'][tagname] = kwargs[tagname] 
         self._sync()
 
 
@@ -146,7 +145,7 @@ class config_parser:
                 ret_record['password'] = password
         return ret_record
 
-    def modify_record(self, ip, port = None, user = None, password = None):
+    def modify_record(self, ip, port = None, user = None, password = None, name = None ):
         # 检查是否有对应的ip，如果没有则抛出错误
         if password != None:
             crypto = pwd_crypt()
@@ -156,7 +155,8 @@ class config_parser:
             if record['ip'] == ip:
                 # 找到了对应的记录
                 a_record= 1
-                for key in record:
+                fields = ['port', 'user', 'password', 'name']
+                for key in fields:
                     # 如果记录中的这个参数在上下文中并且数据不是None, 则把与参数同名的上下文变量的值赋值给参数
                     if key in locals() and locals()[key] != None:
                         record[key] = locals()[key]

@@ -12,7 +12,8 @@ class action_add(server_action):
             {"name":"i","desc":"服务器的地址","needarg":True,"argname":"ip"},
             {"name":"P","desc":"登录服务器的密码","needarg":True,"argname":"password"},
             {"name":"h","desc":"显示这条帮助信息","needarg":False},
-            {"name":"n", "desc": "服务器的别名", "needarg": True, "argname":"name"}
+            {"name":"n", "desc": "服务器的别名", "needarg": True, "argname":"name"},
+            {"name":"t", "desc": "服务器标签", "needarg": True, "argname":"tag"}
             ]
     def __init__(self):
         self._usage_helper = usage_helper(sys.argv[0], "add", self._parameters)
