@@ -4,6 +4,7 @@ import getopt
 from core.interface.action import server_action
 from core.helper.usage import usage_helper
 from core.helper.parser import config_parser
+import re
 
 class action_update(server_action):
     # 参数列表示例，可以在这边增加参数描述，最终代码将根据argname生成对对应的参数
@@ -14,12 +15,14 @@ class action_update(server_action):
         {"name":"u", "desc": "登录服务器的用户名", "needarg": True, "argname":"user"},
         {"name":"P","desc":"登录服务器的密码","needarg":True,"argname":"password"},
         {"name":"n", "desc": "服务器的别名", "needarg": True, "argname":"name"},
+        {"name":"t", "desc":"服务器标签", "needarg":True, "argname":"tag"}
 
     ]
 
     def __init__(self):
         # 创建帮助信息
         self._usage_helper = usage_helper(sys.argv[0], "update", self._parameters)
+        self._config = config_parser()
 
     def _usage(self):
         # 输出action的帮助信息
@@ -63,12 +66,29 @@ class action_update(server_action):
             self._usage()
             exit()
         # ToDo: 自定义的解析方法
-        pass
+        self._tag=[]
+        prog_with_value = re.compile(r'^[\w]+=[0-9a-zA-Z-_]+$')
+        prog_without_value = re.compile(r'^[\w]+$')
+        for opt, arg in opts:
+            if opt == '-t':
+                if prog_with_value.match(arg) is not None:
+                    # 带值的标签，例如tag=hello
+                    name,value = arg.split('=')
+                    self._tag.append({name:value})
+                elif prog_without_value.match(arg) is not None:
+                    # 不带值的标签，例如tag
+                    self._tag.append({arg:''})
+                else:
+                    print("%s is bad value"%(arg))
+
+    def _update_tag(self):
+        code = "self._config.update_tag(self._ip, %s)"%(','.join(self._tag))
+        eval(code, globals(), locals())
 
     # action实际执行的动作，请将action的行为添加到这个方法内
     def run(self):
-        config = config_parser()
-        if config.get_record(self._ip) == None:
+        if self._config.get_record(self._ip) == None:
             print("找不到对应的服务器记录")
             return
-        config.modify_record(self._ip, self._port, self._user, self._password, self._name)
+        self._config.modify_record(self._ip, self._port, self._user, self._password, self._name)
+        self._update_tag()

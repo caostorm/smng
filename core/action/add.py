@@ -18,6 +18,7 @@ class action_add(server_action):
             ]
     def __init__(self):
         self._usage_helper = usage_helper(sys.argv[0], "add", self._parameters)
+        self._config = config_parser()
 
     def _usage(self):
         self._usage_helper.output()
@@ -64,8 +65,10 @@ class action_add(server_action):
                     print("%s is bad value"%(arg))
                     pass
 
-    def run(self):
-        config = config_parser()
-        config.add_record(self._ip, self._port, self._user, self._password, self._name)
-        code="config.add_tag(self._ip,%s)"%(','.join(self._tag))
+    def _add_tag(self):
+        code="self._config.add_tag(self._ip,%s)"%(','.join(self._tag))
         eval(code,globals(), locals())
+
+    def run(self):
+        self._config.add_record(self._ip, self._port, self._user, self._password, self._name)
+        self._add_tag()
