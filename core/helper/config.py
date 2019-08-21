@@ -42,13 +42,7 @@ class options_config:
             # bool
             obj['type'] = 'bool'
         else:
-            if sys.version_info.major == 2:
-                if type(value) == type(1L):
-                    obj['type'] = long
-                else:
-                    raise self.ErrorTypeNotSupport
-            else:
-                raise self.ErrorTypeNotSupport
+            raise self.ErrorTypeNotSupport
         encrypto = pwd_crypt()
         obj['value'] = encrypto.encrypt(str(value))
         self._config[key] = obj
