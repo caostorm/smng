@@ -2,6 +2,7 @@
 import json
 from core.helper.crypt import pwd_crypt
 from core.helper.globalvar import global_const
+import sys
 
 class options_config:
     class ErrorTypeNotSupport(BaseException):
@@ -40,11 +41,14 @@ class options_config:
         elif type(value) == type(True):
             # bool
             obj['type'] = 'bool'
-        elif type(value) == type(1L):
-            # long
-            obj['type'] = 'long'
         else:
-            raise self.ErrorTypeNotSupport
+            if sys.version_info.major == 2:
+                if type(value) == type(1L):
+                    obj['type'] = long
+                else:
+                    raise self.ErrorTypeNotSupport
+            else:
+                raise self.ErrorTypeNotSupport
         encrypto = pwd_crypt()
         obj['value'] = encrypto.encrypt(str(value))
         self._config[key] = obj
